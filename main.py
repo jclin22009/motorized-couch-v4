@@ -6,9 +6,13 @@ from odrive.enums import AxisState
 async def find_device():
     odrv0 = await odrive.find_async()
     await odrv0.axis0.requested_state.write(AxisState.CLOSED_LOOP_CONTROL)
+    await odrv0.axis0.clear_errors()
     return odrv0
 
 async def set_speed(speed, device):
+    """
+    speed: in rad/s
+    """
     await device.axis0.controller.input_vel.write(speed)
 
 async def main():
@@ -28,7 +32,7 @@ async def main():
         while True:
             pygame.event.pump()
             axis_value = joystick.get_axis(1)  # Usually vertical axis
-            speed = axis_value * -10  # Invert and scale (adjust multiplier as needed)
+            speed = axis_value * -20  
             await set_speed(speed, odrv0)
             await asyncio.sleep(0.05)  # 20Hz update rate
     except KeyboardInterrupt:
