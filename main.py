@@ -19,10 +19,7 @@ async def find_device():
     print(f"Setting torque_constant = {torque_constant}")
     await odrv0.axis0.motor.config.torque_constant.write(torque_constant)
     print("✓ Torque constant set successfully")
-    
-    # Optional: Disable velocity limiter for full torque control
-    # WARNING: This removes a safety feature! Enable only if you understand the risks
-    # await odrv0.axis0.controller.enable_torque_mode_vel_limit.write(False)
+
     
     # Set velocity limit for torque mode (safety feature) - 25 mph max
     max_speed_rad_s = mph_to_rad_per_sec(25.0)
@@ -30,7 +27,6 @@ async def find_device():
     print(f"✓ Velocity limit set to 25.0 mph ({max_speed_rad_s:.1f} rad/s)")
     
     await odrv0.axis0.requested_state.write(AxisState.CLOSED_LOOP_CONTROL)
-    await odrv0.axis0.clear_errors()
     return odrv0
 
 async def set_torque(torque, device):
