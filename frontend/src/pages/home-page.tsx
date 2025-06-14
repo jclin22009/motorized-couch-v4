@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import Dial from '../components/Dial';
+import { useDashboardWebSocket } from '../hooks/useDashboardWebSocket';
 
 const SPEED_MODES = [
   { label: 'Chill' },
@@ -10,72 +11,17 @@ const SPEED_MODES = [
 ];
 const GEAR_MODES = ['P', 'R', 'N', 'D'];
 
-type DialProps = {
-  value: number;
-  max: number;
-  unit: string;
-  label: string;
-  color: string;
-  size?: number;
-  valueColor?: string;
-  main?: boolean; // If true, use larger text for center dial
-};
-
-function Dial({
-  value,
-  max,
-  unit,
-  label,
-  color,
-  size = 200,
-  valueColor,
-  main = false,
-}: DialProps) {
-  const radius = (size / 2) - 22;
-  const circumference = 2 * Math.PI * radius;
-  const percent = Math.min(Math.abs(value) / max, 1);
-  const dashoffset = circumference * (1 - percent);
-  return (
-    <div className="relative flex flex-col items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="#e5e7eb"
-          className="dark:stroke-zinc-900"
-          strokeWidth="22"
-          fill="none"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth="18"
-          fill="none"
-          strokeDasharray={circumference}
-          strokeDashoffset={dashoffset}
-          strokeLinecap="round"
-          style={{ transition: 'stroke-dashoffset 0.5s' }}
-        />
-      </svg>
-      <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
-        <span className={`font-bold ${main ? 'text-8xl' : 'text-5xl'} ${valueColor || 'text-black dark:text-white'}`}>{value}</span>
-        <span className={`font-semibold ${main ? 'text-3xl' : 'text-xl'} text-gray-500 dark:text-gray-400`}>{unit}</span>
-      </div>
-    </div>
-  );
-}
-
 export default function HomePage() {
-  const [speed, setSpeed] = useState(42); // mph
-  const [battery, setBattery] = useState(76); // %
-  const [speedMode, setSpeedMode] = useState(2); // index
-  const [gear, setGear] = useState(3); // index
-  const [wattage, setWattage] = useState(-800); // W, negative for regen
-  const [range, setRange] = useState(24); // mi
-  const [voltage, setVoltage] = useState(48.2); // V
+  const {
+    speed,
+    battery,
+    speedMode,
+    gear,
+    wattage,
+    range,
+    voltage,
+    connected,
+  } = useDashboardWebSocket();
 
   // Color logic for wattage dial
   const wattageColor = wattage < 0 ? '#2563eb' : '#dc2626'; // blue-600 for regen, red-600 for power
@@ -86,7 +32,7 @@ export default function HomePage() {
       <Helmet>
         <title>Motorized Couch Dashboard</title>
       </Helmet>
-      <div className="fixed top-[88px] left-0 z-10 flex flex-col items-start mx-6">
+      <div className="fixed left-0 z-10 flex flex-col items-start m-6">
         <div className="w-40 bg-zinc-200 dark:bg-zinc-900 rounded-xl flex items-center justify-center relative border border-zinc-300 dark:border-zinc-700">
           <div
             className="absolute left-0 top-0 h-full rounded-xl bg-green-500 dark:bg-green-700"
@@ -97,6 +43,7 @@ export default function HomePage() {
             <span className="text-xs font-semibold text-white dark:text-white leading-none">{battery}%</span>
           </div>
         </div>
+        <span className={`mt-2 text-2xl font-semibold ${connected ? 'text-green-600' : 'text-red-600'}`}>{connected ? 'Live' : 'Offline'}</span>
       </div>
 
       <div className="min-h-screen h-screen w-screen">
@@ -159,13 +106,13 @@ export default function HomePage() {
                         ? 'bg-black text-white dark:bg-white dark:text-black scale-110'
                         : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400 opacity-60'
                     }`}
-                    onClick={() => setSpeedMode(idx)}
+                    // No-op: dashboard is read-only
+                    onClick={() => {}}
                   >
                     {mode.label}
                   </button>
                 ))}
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Speed Mode</span>
             </div>
             {/* Gear Modes */}
             <div className="flex flex-col items-center">
@@ -178,13 +125,13 @@ export default function HomePage() {
                         ? 'bg-black text-white dark:bg-white dark:text-black scale-110 shadow-lg'
                         : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400'
                     }`}
-                    onClick={() => setGear(idx)}
+                    // No-op: dashboard is read-only
+                    onClick={() => {}}
                   >
                     {g}
                   </button>
                 ))}
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Gear</span>
             </div>
           </div>
         </div>

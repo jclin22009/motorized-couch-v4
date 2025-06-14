@@ -1,8 +1,12 @@
-// routes
-import Router from '@/routes';
+import Layout from './layouts/main';
+import HomePage from './pages/home-page';
 
 function App() {
-  return <Router />;
+  return (
+    <Layout>
+      <HomePage />
+    </Layout>
+  );
 }
 
 export default App;
