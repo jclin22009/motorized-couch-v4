@@ -25,6 +25,14 @@ async def find_device():
     max_speed_rad_s = mph_to_rad_per_sec(25.0)
     await odrv0.axis0.controller.config.vel_limit.write(max_speed_rad_s)  # rad/s
     print(f"✓ Velocity limit set to 25.0 mph ({max_speed_rad_s:.1f} rad/s)")
+
+    # Configure current limit controls
+    await odrv0.axis0.motor.config.current_lim_margin.write(10)
+    await odrv0.axis0.motor.config.requested_current_range.write(25)
+    await odrv0.axis0.motor.config.current_lim.write(25)
+    await odrv0.axis0.config.motor.current_soft_max.write(28)
+    await odrv0.axis0.config.motor.current_hard_max.write(30)
+
     
     await odrv0.axis0.requested_state.write(AxisState.CLOSED_LOOP_CONTROL)
     return odrv0
