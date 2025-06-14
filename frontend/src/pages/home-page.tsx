@@ -113,7 +113,6 @@ export default function HomePage() {
                   </button>
                 ))}
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Speed Mode</span>
             </div>
             {/* Gear Modes */}
             <div className="flex flex-col items-center">
@@ -133,7 +132,6 @@ export default function HomePage() {
                   </button>
                 ))}
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Gear</span>
             </div>
           </div>
         </div>
