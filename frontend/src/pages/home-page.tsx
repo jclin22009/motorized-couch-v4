@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import Dial from '../components/Dial';
+import CouchVisualization from '../components/CouchVisualization';
 import { useDashboardWebSocket } from '../hooks/useDashboardWebSocket';
 
 const SPEED_MODES = [
@@ -66,9 +67,11 @@ export default function HomePage() {
             {/* Left Dial: Wattage */}
            
 
-            {/* Center: car visualization */}
+            {/* Center: couch visualization */}
             <div className="flex flex-col items-center justify-center flex-1">
-              car visual is gonna go here
+              <div className="w-80 h-80">
+                <CouchVisualization />
+              </div>
             </div>
 
             {/* Right Dial: Speed (bigger) */}
