@@ -50,7 +50,28 @@ export default function HomePage() {
         <div className="bg-white dark:bg-black flex flex-col items-stretch transition-colors relative min-h-0 h-full">
           {/* Main three-dial layout */}
           <div className="flex flex-1 flex-row items-center justify-center gap-16 px-8 pt-8 min-h-0">
+
+            <div className="flex flex-col items-center justify-center flex-1">
+              <Dial
+                value={speed}
+                max={160}
+                unit="mph"
+                label="Speed"
+                color="#0ea5e9" // sky-500 for accent
+                size={260}
+                main={false}
+                valueColor={undefined}
+              />
+            </div>
             {/* Left Dial: Wattage */}
+           
+
+            {/* Center: car visualization */}
+            <div className="flex flex-col items-center justify-center flex-1">
+              car visual is gonna go here
+            </div>
+
+            {/* Right Dial: Speed (bigger) */}
             <div className="flex flex-col items-center justify-center flex-1">
               <Dial
                 value={wattage}
@@ -64,33 +85,6 @@ export default function HomePage() {
               />
             </div>
 
-            {/* Center Dial: Speed (bigger) */}
-            <div className="flex flex-col items-center justify-center flex-1">
-              <Dial
-                value={speed}
-                max={160}
-                unit="mph"
-                label="Speed"
-                color="#0ea5e9" // sky-500 for accent
-                size={400}
-                main={true}
-                valueColor={undefined}
-              />
-            </div>
-
-            {/* Right Dial: Voltage (yellow) */}
-            <div className="flex flex-col items-center justify-center flex-1">
-              <Dial
-                value={voltage}
-                max={60}
-                unit="V"
-                label="Voltage"
-                color="#eab308" // yellow-500
-                valueColor="text-yellow-600"
-                size={260}
-                main={false}
-              />
-            </div>
           </div>
 
           {/* Bottom Panel: Speed Mode & Gear */}
