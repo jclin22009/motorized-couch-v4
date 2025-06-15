@@ -1,10 +1,30 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
-import random
 import uvicorn
+from contextlib import asynccontextmanager
+from couch import Couch
+from typing import Optional
 
-app = FastAPI()
+class UIManager:
+    websocket: Optional[WebSocket] = None
+
+    async def send(self, data: dict):
+        if not self.websocket:
+            print("No websocket connection")
+            return
+        await self.websocket.send_json(data)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ui_manager = UIManager()
+    app.state.ui_manager = ui_manager
+    couch = Couch(ui_manager)
+    couch.start()
+    yield
+    couch.stop()
+
+app = FastAPI(lifespan=lifespan)
 
 # Allow CORS for local frontend dev
 app.add_middleware(
@@ -19,20 +39,12 @@ app.add_middleware(
 async def websocket_dashboard(websocket: WebSocket):
     await websocket.accept()
     try:
+        app.state.ui_manager.websocket = websocket
         while True:
-            # Dummy data generation
-            data = {
-                "speed": random.randint(0, 60),           # mph
-                "battery": random.randint(20, 100),       # %
-                "wattage": random.randint(-1200, 2000),   # W
-                "range": random.randint(10, 40),          # mi
-                "voltage": round(random.uniform(44, 54), 1), # V
-                "speedMode": random.randint(0, 4),        # index
-                "gear": random.randint(0, 3),             # index
-            }
-            await websocket.send_json(data)
-            await asyncio.sleep(0.5)  # 2 Hz update rate
-    except Exception:
+            await asyncio.sleep(1)
+    except Exception as e:
+        print(f"Error accepting websocket: {e}")
+        app.state.ui_manager.websocket = None
         await websocket.close()
 
 if __name__ == "__main__":
