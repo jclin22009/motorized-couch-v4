@@ -3,9 +3,8 @@
 ## how to install
 
 1. cd into this repo
-2. `uv sync`
-3. `source ./venv/bin/activate`
-4. run `main.py`
+2. Install uv: https://docs.astral.sh/uv/getting-started/installation/#standalone-installer
+3. run `uv run main.py`
 
 ## other materials
 
