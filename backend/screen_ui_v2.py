@@ -52,6 +52,8 @@ class DialWidget:
         # Tk angles: 0=3 o'clock, 90=12 o'clock. Start at 330 (just right of bottom)
         # and sweep counterclockwise for a top arc.
         self._start_angle = 330
+        # For value arc we start at the left end of the top arc (clockwise fill)
+        self._value_start_angle = (self._start_angle + self.arc_extent_deg) % 360
 
         # Draw static elements
         self._bg_arc = self.canvas.create_arc(
@@ -66,7 +68,7 @@ class DialWidget:
         # Value arc (dynamic)
         self._value_arc = self.canvas.create_arc(
             self._bbox,
-            start=self._start_angle,
+            start=self._value_start_angle,
             extent=0,
             style=tk.ARC,
             outline=self.accent,
@@ -105,7 +107,8 @@ class DialWidget:
             return 0
         ratio = (value - self.min_value) / (self.max_value - self.min_value)
         ratio = max(0.0, min(1.0, ratio))
-        return self.arc_extent_deg * ratio
+        # Negative extent draws clockwise from start angle
+        return -self.arc_extent_deg * ratio
 
     def set_target(self, value: float) -> None:
         self._target_value = self._clamp(value)
