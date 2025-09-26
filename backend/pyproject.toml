@@ -5,12 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi>=0.115.12",
-    "matplotlib>=3.10.3",
+    "fastapi>=0.117.1",
     "pygame>=2.6.1",
     "pyserial>=3.5",
-    "pyvesc",
-    "uvicorn[standard]>=0.34.3",
+    "pyvesc>=1.0.5",
+    "uvicorn[standard]>=0.37.0",
 ]
 
 [tool.uv.sources]

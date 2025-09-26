@@ -90,10 +90,21 @@ class Couch:
                 ik_right *= get_speed_multiplier(self.couch_mode)
 
                 try:
-                    self.left_rpm = left_motor.get_rpm()
-                    self.right_rpm = right_motor.get_rpm()
+                    measurements_left = left_motor.get_measurements()
+                    measurements_right = right_motor.get_measurements()
+
+                    if measurements_left and measurements_right:
+                        self.left_rpm = measurements_left.rpm
+                        self.right_rpm = measurements_right.rpm
+                        self.left_power = measurements_left.avg_motor_current * 10
+                        self.right_power = measurements_right.avg_motor_current * 10
+                        self.voltage = measurements_left.v_in
+                        self.temperature = measurements_left.temp_fet if measurements_left.temp_fet > measurements_right.temp_fet else measurements_right.temp_fet
+                    else:
+                        self.left_rpm = 0
+                        self.right_rpm = 0
                 except Exception as e:
-                    print(f"Error getting motor RPM: {e}")
+                    print(f"Error getting motor measurements: {e}")
                     self.left_rpm = 0
                     self.right_rpm = 0
 
@@ -102,23 +113,23 @@ class Couch:
                 self.speed = (((self.left_rpm + self.right_rpm) / 2) / 15) * rpm_to_mph #Convert ERPM to RPM
 
                 if joystick.isPressed('T1'):
-                    couch_mode = 0
+                    self.couch_mode = 0
                     left_motor.set_rpm(0)
                     right_motor.set_rpm(0)
                     print("Motors set to brake state (park)")
                 elif joystick.isPressed('T2'):
-                    couch_mode = 1
+                    self.couch_mode = 1
                     left_motor.set_current(0) 
                     right_motor.set_current(0)
                     print("Motors set to loose state (neutral)")
                 elif joystick.isPressed('T3'):
-                    couch_mode = 2
+                    self.couch_mode = 2
                     print("Motors set to brake state (chill)")
                 elif joystick.isPressed('T5'):
-                    couch_mode = 3
+                    self.couch_mode = 3
                     print("Motors set to brake state (speed)")
                 elif joystick.isPressed('T7'):
-                    couch_mode = 4
+                    self.couch_mode = 4
                     print("Motors set to brake state (ludicrous)")
 
                 if joystick.isPressed('TRIGGER'):
@@ -129,21 +140,9 @@ class Couch:
                     except Exception as e:
                         print(f"Failed to play sound: {e}")
 
-                if couch_mode > 1:
+                if self.couch_mode > 1:
                     left_motor.set_rpm(ik_left)
                     right_motor.set_rpm(ik_right)
-
-                try:
-                    measurements_left = left_motor.get_measurements()
-                    measurements_right = right_motor.get_measurements()
-
-                    self.left_power = measurements_left.avg_motor_current * 10
-                    self.right_power = measurements_right.avg_motor_current * 10
-                    self.voltage = measurements_left.v_in
-                    self.temperature = measurements_left.temp_fet if measurements_left.temp_fet > measurements_right.temp_fet else measurements_right.motor_temp
-                except Exception as e:
-                    print(f"Error getting motor measurements: {e}")
-                    pass
 
         finally:
             del left_motor

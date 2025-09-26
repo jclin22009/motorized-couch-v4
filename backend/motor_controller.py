@@ -18,9 +18,6 @@ class MotorController:
     def set_current(self, speed: float):
         raise NotImplementedError
 
-    def get_rpm(self):
-        raise NotImplementedError
-
     def get_measurements(self):
         raise NotImplementedError
 
@@ -45,9 +42,6 @@ class VESCMotorController(MotorController):
     
     def set_duty_cycle(self, duty_cycle: float):
         self.motor.set_duty_cycle(duty_cycle)    
-    
-    def get_rpm(self):
-        return self.motor.get_rpm()
 
     def __del__(self):
         # Stop the heartbeat to prevent the motor from spinning
@@ -77,9 +71,6 @@ class CanVESC(MotorController):
 
     def get_measurements(self):
         return self.parent_vesc.write(self._get_values_msg, num_read_bytes=self._get_values_msg_expected_length)
-
-    def get_rpm(self):
-        return self.get_measurements().rpm
 
     def __del__(self):
         # Stop the heartbeat to prevent the motor from spinning
