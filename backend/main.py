@@ -1,6 +1,8 @@
 import tkinter as tk
 from couch import Couch
 from screen_ui_v2 import ScreenUIv2
+import os
+os.environ['DISPLAY'] = ':0'
 
 
 class UIManager:

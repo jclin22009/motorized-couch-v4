@@ -8,8 +8,8 @@
     "name": "Painkiller995"
   },
   "scripts": {
-    "dev": "concurrently \"yarn dev:vite\" \" yarn dev:electron\"",
-    "dev:vite": "vite",
+    "dev": "concurrently \"yarn dev:vite --host\" \" yarn dev:electron\"",
+    "dev:vite": "vite --host",
     "dev:electron": "npm run build:electron && electron .",
     "build": "npm run build:vite && npm run build:electron",
     "build:vite": "vite build",
@@ -50,8 +50,7 @@
     "autoprefixer": "^10.4.16",
     "autosuggest-highlight": "^3.3.4",
     "concurrently": "^8.2.2",
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1",
+    "electron": "^38.1.2",
     "eslint": "8.56.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-airbnb-typescript": "^17.1.0",
