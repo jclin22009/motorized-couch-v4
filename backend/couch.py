@@ -1,4 +1,3 @@
-import asyncio
 import time
 import threading
 from typing import TYPE_CHECKING
@@ -8,7 +7,6 @@ import Gamepad.Controllers as Controllers
 from detect_motor_controllers import get_motor_controllers
 
 from drive_modes import arcade_drive_ik, get_speed_multiplier
-import pygame
 
 if TYPE_CHECKING:
     from app import UIManager
@@ -30,28 +28,34 @@ class Couch:
         self.couch_mode = 0 # 0 = park, 1 = neutral, 2 = chill, 3 = speed, 4 = ludicrous 
 
     def start(self):
+        print("Starting couch")
         self.stop_event = threading.Event()
 
         # Use a separate thread for joystick and motor control
-        self.control_thread = threading.Thread(target=self.joystick_motor_control)
-        self.control_thread.daemon = True  # This will allow the thread to exit when the main program exits
+        self.control_thread = threading.Thread(target=self.joystick_motor_control, daemon=True)
+        self.ui_thread = threading.Thread(target=self.update_ui_periodically, daemon=True)
         self.control_thread.start()
-
-        self.update_ui_task = asyncio.create_task(self.update_ui_periodically())
+        self.ui_thread.start()
+        print("Started couch")
 
     def stop(self):
+        print("Stopping couch")
         self.stop_event.set()
-        self.update_ui_task.cancel()
         self.control_thread.join()
+        print("Stopped control thread")
+        self.ui_thread.join()
+        print("Stopped UI thread")
+        print("Stopped couch")
 
-    async def update_ui_periodically(self):
-        try:
-            while True:
-                battery_percentage = self.voltage # TODO: DO actual conversion
-                range_ = self.voltage # TODO: DO actual conversion
-                wattage = self.left_power + self.right_power # TODO: Is this correct?
-                gear = 0 # TODO: Get actual gear
-                await self.ui_manager.send({
+    def update_ui_periodically(self):
+        stop_event = self.stop_event
+        while not stop_event.is_set():
+            battery_percentage = self.voltage # TODO: DO actual conversion
+            range_ = self.voltage # TODO: DO actual conversion
+            wattage = self.left_power + self.right_power # TODO: Is this correct?
+            gear = 0 # TODO: Get actual gear
+            try:
+                self.ui_manager.send({
                     "speed": self.speed,           # mph
                     "battery": battery_percentage, # %
                     "wattage": wattage,             # W
@@ -60,9 +64,9 @@ class Couch:
                     "speedMode": self.couch_mode,        # index
                     "gear": gear,             # index
                 })
-                await asyncio.sleep(0.2)
-        except asyncio.CancelledError:
-            pass
+            except Exception as e:
+                print(f"Error sending data to UI: {e}")
+            time.sleep(0.2)
 
     def joystick_motor_control(self):
         stop_event = self.stop_event
@@ -133,12 +137,8 @@ class Couch:
                     print("Motors set to brake state (ludicrous)")
 
                 if joystick.isPressed('TRIGGER'):
-                    try:
-                        pygame.mixer.music.load("horn2.wav")
-                        pygame.mixer.music.play()
-                        print("Playing sound")
-                    except Exception as e:
-                        print(f"Failed to play sound: {e}")
+                    # TODO: Horn
+                    pass
 
                 if self.couch_mode > 1:
                     left_motor.set_rpm(ik_left)
