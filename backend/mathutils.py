@@ -245,29 +245,3 @@ def deadzone_with_hysteresis(x: float, deadband: float, hysteresis: float = 0.02
     else:
         return x
 
-
-class RateLimiter:
-    """
-    Rate limiter to prevent too frequent control updates.
-    """
-    
-    def __init__(self, min_interval: float = 0.05):
-        """
-        Args:
-            min_interval: Minimum time interval between allowed updates (seconds)
-        """
-        self.min_interval = min_interval
-        self.last_update_time = 0.0
-        
-    def should_update(self) -> bool:
-        """
-        Check if enough time has passed since the last update.
-        
-        Returns:
-            True if update should proceed, False otherwise
-        """
-        current_time = time.time()
-        if current_time - self.last_update_time >= self.min_interval:
-            self.last_update_time = current_time
-            return True
-        return False

@@ -6,7 +6,7 @@ import Gamepad.Controllers as Controllers
 from detect_motor_controllers import get_motor_controllers
 
 from drive_modes import SpeedMode, arcade_drive_ik, get_speed_multiplier
-from mathutils import InputSmoother, RateLimiter
+from mathutils import InputSmoother
 
 from screen_ui import ScreenUI, ScreenUIUpdate
 
@@ -33,9 +33,6 @@ class Couch:
             smoothing_factor=0.15,  # Light smoothing to maintain responsiveness
             max_accel_per_sec=3.0   # Allow reasonably quick acceleration changes
         )
-        
-        # Rate limiting to prevent excessive motor control updates
-        self.motor_rate_limiter = RateLimiter(min_interval=0.05)  # Max 20 Hz motor updates
 
     def start(self):
         print("Starting couch")
@@ -135,29 +132,27 @@ class Couch:
                 is_driving = joystick.isPressed("MODEB")
                 is_park = not is_driving and not is_neutral
 
-                # Only update motors if enough time has passed (rate limiting)
-                if self.motor_rate_limiter.should_update():
-                    if is_park:
-                        self.speed_mode = "park"
-                        left_motor.set_rpm(0)
-                        right_motor.set_rpm(0)
-                    elif is_neutral:
-                        self.speed_mode = "neutral"
-                        left_motor.set_current(0) 
-                        right_motor.set_current(0)
-                    elif is_driving:
-                        if self.speed_mode == "park" or self.speed_mode == "neutral":
-                            self.speed_mode = "chill"
-                        if joystick.isPressed('T1') or joystick.isPressed('T2'):
-                            self.speed_mode = "chill"
-                        elif joystick.isPressed('T3') or joystick.isPressed('T4'):
-                            self.speed_mode = "standard"
-                        elif joystick.isPressed('T5') or joystick.isPressed('T6'):
-                            self.speed_mode = "sport"
-                        elif joystick.isPressed('T7') or joystick.isPressed('T8'):
-                            self.speed_mode = "insane"
-                        left_motor.set_rpm(ik_left)
-                        right_motor.set_rpm(ik_right)
+                if is_park:
+                    self.speed_mode = "park"
+                    left_motor.set_rpm(0)
+                    right_motor.set_rpm(0)
+                elif is_neutral:
+                    self.speed_mode = "neutral"
+                    left_motor.set_current(0) 
+                    right_motor.set_current(0)
+                elif is_driving:
+                    if self.speed_mode == "park" or self.speed_mode == "neutral":
+                        self.speed_mode = "chill"
+                    if joystick.isPressed('T1') or joystick.isPressed('T2'):
+                        self.speed_mode = "chill"
+                    elif joystick.isPressed('T3') or joystick.isPressed('T4'):
+                        self.speed_mode = "standard"
+                    elif joystick.isPressed('T5') or joystick.isPressed('T6'):
+                        self.speed_mode = "sport"
+                    elif joystick.isPressed('T7') or joystick.isPressed('T8'):
+                        self.speed_mode = "insane"
+                    left_motor.set_rpm(ik_left)
+                    right_motor.set_rpm(ik_right)
 
                 if joystick.isPressed('TRIGGER'):
                     # TODO: Horn
