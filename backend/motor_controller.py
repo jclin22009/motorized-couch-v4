@@ -1,5 +1,5 @@
-from pyvesc import VESC, encode, encode_request, decode
-from pyvesc.VESC.messages import SetCurrent, SetRPM, GetValues, SetDutyCycle
+from pyvesc import VESC, encode, encode_request  # pyright: ignore[reportMissingImports]
+from pyvesc.VESC.messages import SetCurrent, SetRPM, GetValues  # pyright: ignore[reportMissingImports]
 from mathutils import map_range
 
 
@@ -67,7 +67,7 @@ class CanVESC(MotorController):
         self.parent_vesc.write(packet)
 
     def set_duty_cycle(self, duty_cycle: float):
-        self.motor.set_duty_cycle(duty_cycle)
+        raise NotImplementedError
 
     def get_measurements(self):
         return self.parent_vesc.write(self._get_values_msg, num_read_bytes=self._get_values_msg_expected_length)
