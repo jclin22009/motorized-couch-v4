@@ -110,8 +110,6 @@ class Couch:
 
                 self.speed = (((self.left_rpm + self.right_rpm) / 2) / 15) * rpm_to_mph #Convert ERPM to RPM
 
-                # TODO: Figure out Drive Mode switch
-
                 is_driving = True
 
                 is_neutral = joystick.isPressed("MODEA")
@@ -137,14 +135,12 @@ class Couch:
                         self.speed_mode = "sport"
                     elif joystick.isPressed('T7') or joystick.isPressed('T8'):
                         self.speed_mode = "insane"
+                    left_motor.set_rpm(ik_left)
+                    right_motor.set_rpm(ik_right)
 
                 if joystick.isPressed('TRIGGER'):
                     # TODO: Horn
                     pass
-
-                if is_driving:
-                    left_motor.set_rpm(ik_left)
-                    right_motor.set_rpm(ik_right)
 
         finally:
             del left_motor
