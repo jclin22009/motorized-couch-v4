@@ -114,6 +114,8 @@ class Couch:
 
                 is_driving = True
 
+                print(joystick.isPressed("MODEA"), joystick.isPressed("MODEB"))
+
                 if is_driving:
                     if joystick.isPressed('T1') or joystick.isPressed('T2'):
                         self.speed_mode = "chill"
