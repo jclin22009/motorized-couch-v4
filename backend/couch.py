@@ -26,15 +26,15 @@ class Couch:
         self.temperature = 0
         self.speed_mode: SpeedMode = "park"
         
-        # Professional slew rate limiters for smooth velocity ramping
-        # Used in competitive robotics and industrial control systems
+        # Gentle slew rate limiters for smooth, comfortable acceleration
+        # Much slower than robotics - optimized for human passengers!
         self.left_slew_limiter = SlewRateLimiter(
-            positive_rate_limit=4.0,  # RPM/sec acceleration limit
-            negative_rate_limit=6.0   # RPM/sec deceleration limit (faster stopping)
+            positive_rate_limit=0.8,  # Very gentle acceleration (RPM/sec)
+            negative_rate_limit=1.5   # Slightly faster deceleration for safety
         )
         self.right_slew_limiter = SlewRateLimiter(
-            positive_rate_limit=4.0,
-            negative_rate_limit=6.0
+            positive_rate_limit=0.8,
+            negative_rate_limit=1.5
         )
 
     def start(self):
@@ -112,9 +112,9 @@ class Couch:
                 ik_left *= get_speed_multiplier(self.speed_mode)
                 ik_right *= get_speed_multiplier(self.speed_mode)
                 
-                # Apply professional slew rate limiting for smooth acceleration/deceleration
-                # Convert to RPM (adjust this based on your motor's max RPM)
-                MAX_RPM = 1000  # TODO: Replace with your actual motor max RPM
+                # Apply gentle slew rate limiting for comfortable acceleration/deceleration
+                # Conservative MAX_RPM - you can increase this if needed
+                MAX_RPM = 300  # Much more conservative for passenger comfort
                 target_left_rpm = ik_left * MAX_RPM
                 target_right_rpm = ik_right * MAX_RPM
                 
