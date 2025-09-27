@@ -16,6 +16,8 @@ POLL_INTERVAL = 0.05  # 20Hz polling for more responsive input reading
 
 IPM_IN_MPH = 1056
 POLE_PAIRS = 6
+MOTOR_PULLEY = 16
+WHEEL_PULLEY = 72
 
 class Couch:
     def __init__(self, ui_manager: "ScreenUI | None" = None):
@@ -128,9 +130,12 @@ class Couch:
                     self.left_rpm = 0
                     self.right_rpm = 0
 
-                rpm_to_mph = 8 * 3.14 / IPM_IN_MPH
+                avg_erpm = (self.left_rpm + self.right_rpm) / 2
+                motor_rpm = avg_erpm / POLE_PAIRS
+                wheel_rpm = motor_rpm * (MOTOR_PULLEY / WHEEL_PULLEY)
+                wheel_mph = wheel_rpm * 8 * 3.14 / IPM_IN_MPH
 
-                self.speed = (((self.left_rpm + self.right_rpm) / 2) / POLE_PAIRS) * rpm_to_mph #Convert ERPM to RPM
+                self.speed = wheel_mph
 
                 if joystick.isPressed('T1'):
                     self.speed_mode = "park"
