@@ -180,7 +180,6 @@ class ModeIndicator:
             "chill": "Chill",
             "standard": "Standard",
             "sport": "Sport",
-            "insane": "Ludicrous",
         }
         self.active_colors: Dict[SpeedMode, str] = {
             "park": Colors.RED,
@@ -188,7 +187,6 @@ class ModeIndicator:
             "chill": Colors.GREEN,
             "standard": Colors.GREEN,
             "sport": Colors.GREEN,
-            "insane": Colors.GREEN,
         }
         self._label_widgets: Dict[SpeedMode, tk.Label] = {}
 

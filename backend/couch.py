@@ -132,31 +132,21 @@ class Couch:
 
                 self.speed = (((self.left_rpm + self.right_rpm) / 2) / POLE_PAIRS) * rpm_to_mph #Convert ERPM to RPM
 
-                is_driving = True
-
-                is_neutral = joystick.isPressed("MODEA")
-                is_driving = joystick.isPressed("MODEB")
-                is_park = not is_driving and not is_neutral
-
-                if is_park:
+                if joystick.isPressed('T1'):
                     self.speed_mode = "park"
-                    left_motor.set_rpm(0)
-                    right_motor.set_rpm(0)
-                elif is_neutral:
+                elif joystick.isPressed('T2'):
                     self.speed_mode = "neutral"
-                    left_motor.set_current(0) 
+                elif joystick.isPressed('T3') or joystick.isPressed('T4'):
+                    self.speed_mode = "chill"
+                elif joystick.isPressed('T5') or joystick.isPressed('T6'):
+                    self.speed_mode = "standard"
+                elif joystick.isPressed('T7') or joystick.isPressed('T8'):
+                    self.speed_mode = "sport"
+                
+                if self.speed_mode == "neutral":
+                    left_motor.set_current(0)
                     right_motor.set_current(0)
-                elif is_driving:
-                    if self.speed_mode == "park" or self.speed_mode == "neutral":
-                        self.speed_mode = "chill"
-                    if joystick.isPressed('T1') or joystick.isPressed('T2'):
-                        self.speed_mode = "chill"
-                    elif joystick.isPressed('T3') or joystick.isPressed('T4'):
-                        self.speed_mode = "standard"
-                    elif joystick.isPressed('T5') or joystick.isPressed('T6'):
-                        self.speed_mode = "sport"
-                    elif joystick.isPressed('T7') or joystick.isPressed('T8'):
-                        self.speed_mode = "insane"
+                else:
                     left_motor.set_rpm(ik_left)
                     right_motor.set_rpm(ik_right)
 

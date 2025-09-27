@@ -1,17 +1,16 @@
 from typing import Tuple, Literal, Dict, List
 import mathutils
 
-SpeedMode = Literal["park", "neutral", "chill", "standard", "sport", "insane"]
+SpeedMode = Literal["park", "neutral", "chill", "standard", "sport"]
 
-SPEED_MODES: List[SpeedMode] = ["park", "neutral", "chill", "standard", "sport", "insane"]
+SPEED_MODES: List[SpeedMode] = ["park", "neutral", "chill", "standard", "sport"]
 
 SPEED_MODES_TO_MULTIPLIER: Dict[SpeedMode, float] = {
     "park": 0,
     "neutral": 0,
-    "chill": 0.25,
-    "standard": 0.5,
-    "sport": 0.75,
-    "insane": 1,
+    "chill": 0.5,
+    "standard": 0.75,
+    "sport": 1,
 }
 
 def curvture_drive_ik(speed: float, rotation: float) -> Tuple[float, float]:
