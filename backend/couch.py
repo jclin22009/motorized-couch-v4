@@ -30,12 +30,12 @@ class Couch:
         # Lower smoothing_factor = more responsive (0.3 is a good balance)
         # Lower max_accel_per_sec = smoother acceleration changes
         self.input_smoother = InputSmoother(
-            smoothing_factor=0.3,  # Light smoothing to maintain responsiveness
+            smoothing_factor=0.5,  # Light smoothing to maintain responsiveness
             max_accel_per_sec=4.0   # Allow reasonably quick acceleration changes
         )
         
         # Rotation sensitivity - makes turning less aggressive than forward/backward
-        self.rotation_sensitivity = 0.3  # 70% less sensitive turning
+        self.rotation_sensitivity = 0.2  # 80% less sensitive turning
 
     def start(self):
         print("Starting couch")
