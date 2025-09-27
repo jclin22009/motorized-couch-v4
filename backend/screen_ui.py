@@ -208,8 +208,9 @@ class ModeIndicator:
     def set_mode(self, mode: "SpeedMode") -> None:
         prev_mode = self.selected_mode
         self._label_widgets[mode].config(bg=self.active_colors[mode], fg=self.accent)
-        self._label_widgets[prev_mode].config(bg=self.bg, fg=self.dim)
-        self.selected_mode = mode
+        if prev_mode != mode:
+            self._label_widgets[prev_mode].config(bg=self.bg, fg=self.dim)
+            self.selected_mode = mode
 
 
 class ScreenUI:

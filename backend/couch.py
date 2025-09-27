@@ -121,7 +121,7 @@ class Couch:
                         self.speed_mode = "standard"
                     elif joystick.isPressed('T5') or joystick.isPressed('T6'):
                         self.speed_mode = "sport"
-                    elif joystick.isPressed('T7'):
+                    elif joystick.isPressed('T7') or joystick.isPressed('T8'):
                         self.speed_mode = "insane"
 
                 if joystick.isPressed('TRIGGER'):
