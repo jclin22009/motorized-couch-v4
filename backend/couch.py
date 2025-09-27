@@ -14,6 +14,9 @@ VERTICAL_JOYSTICK_AXIS = 1
 HORIZONTAL_JOYSTICK_AXIS = 0
 POLL_INTERVAL = 0.05  # 20Hz polling for more responsive input reading
 
+IPM_IN_MPH = 1056
+POLE_PAIRS = 6
+
 class Couch:
     def __init__(self, ui_manager: "ScreenUI | None" = None):
         self.ui_manager = ui_manager
@@ -125,9 +128,9 @@ class Couch:
                     self.left_rpm = 0
                     self.right_rpm = 0
 
-                rpm_to_mph = 8 * 3.14 * 60 / 5280 / 12
+                rpm_to_mph = 8 * 3.14 / IPM_IN_MPH
 
-                self.speed = (((self.left_rpm + self.right_rpm) / 2) / 15) * rpm_to_mph #Convert ERPM to RPM
+                self.speed = (((self.left_rpm + self.right_rpm) / 2) / POLE_PAIRS) * rpm_to_mph #Convert ERPM to RPM
 
                 is_driving = True
 
