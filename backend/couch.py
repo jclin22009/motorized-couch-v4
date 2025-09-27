@@ -27,11 +27,11 @@ class Couch:
         self.speed_mode: SpeedMode = "park"
         
         # Input smoothing to prevent oscillation from physical feedback
-        # Lower smoothing_factor = more responsive (0.15 is a good balance)
+        # Lower smoothing_factor = more responsive (0.3 is a good balance)
         # Lower max_accel_per_sec = smoother acceleration changes
         self.input_smoother = InputSmoother(
-            smoothing_factor=0.15,  # Light smoothing to maintain responsiveness
-            max_accel_per_sec=1.0   # Allow reasonably quick acceleration changes
+            smoothing_factor=0.3,  # Light smoothing to maintain responsiveness
+            max_accel_per_sec=4.0   # Allow reasonably quick acceleration changes
         )
         
         # Rotation sensitivity - makes turning less aggressive than forward/backward
