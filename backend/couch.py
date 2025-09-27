@@ -5,6 +5,7 @@ import Gamepad.Gamepad as Gamepad
 import Gamepad.Controllers as Controllers
 from detect_motor_controllers import get_motor_controllers
 
+from battery import voltage_to_percentage
 from drive_modes import SpeedMode, arcade_drive_ik, get_speed_multiplier
 from mathutils import InputSmoother
 
@@ -65,7 +66,7 @@ class Couch:
     def update_ui_periodically(self):
         stop_event = self.stop_event
         while not stop_event.is_set():
-            battery_percentage = self.voltage # TODO: DO actual conversion
+            battery_percentage = voltage_to_percentage(self.voltage)
             wattage = self.left_power + self.right_power
             try:
                 if self.ui_manager:
