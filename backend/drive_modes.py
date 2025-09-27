@@ -30,17 +30,21 @@ def curvture_drive_ik(speed: float, rotation: float) -> Tuple[float, float]:
     return mathutils.desaturate_wheel_speeds(left_speed, right_speed)
 
 
-def arcade_drive_ik(speed: float, rotation: float) -> Tuple[float, float]:
+def arcade_drive_ik(speed: float, rotation: float, rotation_sensitivity: float = 1) -> Tuple[float, float]:
     """Arcade drive inverse kinematics for a differential drive platform.
 
     Args:
         speed: The speed along the X axis [-1.0..1.0]. Forward is positive.
         rotation: The normalized curvature [-1.0..1.0]. Counterclockwise is positive.
+        rotation_sensitivity: Multiplier for rotation input to reduce turning sensitivity [0.0..1.0].
+                             Lower values = gentler turning. Default 0.7 makes turning 30% less aggressive.
 
     Returns:
         Wheel speeds [-1.0..1.0].
     """
     speed, rotation = mathutils.scale_and_deadzone_inputs(speed, rotation)
+    # Scale down rotation to make turning less aggressive
+    rotation *= rotation_sensitivity
     left_speed = speed + rotation
     right_speed = speed - rotation
     return mathutils.desaturate_wheel_speeds(left_speed, right_speed)

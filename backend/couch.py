@@ -33,6 +33,9 @@ class Couch:
             smoothing_factor=0.15,  # Light smoothing to maintain responsiveness
             max_accel_per_sec=3.0   # Allow reasonably quick acceleration changes
         )
+        
+        # Rotation sensitivity - makes turning less aggressive than forward/backward
+        self.rotation_sensitivity = 0.7  # 30% less sensitive turning
 
     def start(self):
         print("Starting couch")
@@ -99,7 +102,7 @@ class Couch:
                     joystick_vertical, joystick_horizontal
                 )
                 
-                ik_left, ik_right = arcade_drive_ik(smooth_vertical, smooth_horizontal)
+                ik_left, ik_right = arcade_drive_ik(smooth_vertical, smooth_horizontal, self.rotation_sensitivity)
                 ik_left *= get_speed_multiplier(self.speed_mode)
                 ik_right *= get_speed_multiplier(self.speed_mode)
 
