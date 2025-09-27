@@ -178,7 +178,7 @@ class ModeIndicator:
             "park": "Park",
             "neutral": "Neutral",
             "chill": "Chill",
-            "standard": "Sport",
+            "standard": "Standard",
             "sport": "Sport",
             "insane": "Ludicrous",
         }

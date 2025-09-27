@@ -37,7 +37,7 @@ def arcade_drive_ik(speed: float, rotation: float, rotation_sensitivity: float =
         speed: The speed along the X axis [-1.0..1.0]. Forward is positive.
         rotation: The normalized curvature [-1.0..1.0]. Counterclockwise is positive.
         rotation_sensitivity: Multiplier for rotation input to reduce turning sensitivity [0.0..1.0].
-                             Lower values = gentler turning. Default 0.7 makes turning 30% less aggressive.
+                             Lower values = gentler turning.
 
     Returns:
         Wheel speeds [-1.0..1.0].
