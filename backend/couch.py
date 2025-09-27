@@ -5,8 +5,8 @@ import Gamepad.Gamepad as Gamepad
 import Gamepad.Controllers as Controllers
 from detect_motor_controllers import get_motor_controllers
 
-from drive_modes import SpeedMode, arcade_drive_ik, get_speed_multiplier
-from mathutils import InputSmoother
+from drive_modes import SpeedMode, enhanced_curvature_drive_ik, get_speed_multiplier
+from mathutils import SlewRateLimiter
 
 from screen_ui import ScreenUI, ScreenUIUpdate
 
@@ -26,16 +26,16 @@ class Couch:
         self.temperature = 0
         self.speed_mode: SpeedMode = "park"
         
-        # Input smoothing to prevent oscillation from physical feedback
-        # Lower smoothing_factor = more responsive (0.15 is a good balance)
-        # Lower max_accel_per_sec = smoother acceleration changes
-        self.input_smoother = InputSmoother(
-            smoothing_factor=0.15,  # Light smoothing to maintain responsiveness
-            max_accel_per_sec=3.0   # Allow reasonably quick acceleration changes
+        # Professional slew rate limiters for smooth velocity ramping
+        # Used in competitive robotics and industrial control systems
+        self.left_slew_limiter = SlewRateLimiter(
+            positive_rate_limit=4.0,  # RPM/sec acceleration limit
+            negative_rate_limit=6.0   # RPM/sec deceleration limit (faster stopping)
         )
-        
-        # Rotation sensitivity - makes turning less aggressive than forward/backward
-        self.rotation_sensitivity = 0.7  # 30% less sensitive turning
+        self.right_slew_limiter = SlewRateLimiter(
+            positive_rate_limit=4.0,
+            negative_rate_limit=6.0
+        )
 
     def start(self):
         print("Starting couch")
@@ -97,14 +97,34 @@ class Couch:
                 joystick_vertical = -joystick.axis('Y')
                 joystick_horizontal = joystick.axis('X')
                 
-                # Apply input smoothing to prevent oscillation from physical feedback
-                smooth_vertical, smooth_horizontal = self.input_smoother.smooth_inputs(
-                    joystick_vertical, joystick_horizontal
-                )
+                # Check for quick-turn mode (for tight maneuvers at low speed)
+                # You can assign this to a button - for now using a simple speed threshold
+                current_speed_magnitude = abs(joystick_vertical)
+                quick_turn = current_speed_magnitude < 0.1 and abs(joystick_horizontal) > 0.3
                 
-                ik_left, ik_right = arcade_drive_ik(smooth_vertical, smooth_horizontal, self.rotation_sensitivity)
+                # Use professional curvature drive (speed-dependent turning)
+                ik_left, ik_right = enhanced_curvature_drive_ik(
+                    joystick_vertical, 
+                    joystick_horizontal, 
+                    quick_turn
+                )
+                # Apply speed mode scaling
                 ik_left *= get_speed_multiplier(self.speed_mode)
                 ik_right *= get_speed_multiplier(self.speed_mode)
+                
+                # Apply professional slew rate limiting for smooth acceleration/deceleration
+                # Convert to RPM (adjust this based on your motor's max RPM)
+                MAX_RPM = 1000  # TODO: Replace with your actual motor max RPM
+                target_left_rpm = ik_left * MAX_RPM
+                target_right_rpm = ik_right * MAX_RPM
+                
+                # Apply slew rate limiting
+                smooth_left_rpm = self.left_slew_limiter.calculate(target_left_rpm)
+                smooth_right_rpm = self.right_slew_limiter.calculate(target_right_rpm)
+                
+                # Convert back to normalized values for the existing code
+                ik_left = smooth_left_rpm / MAX_RPM if MAX_RPM > 0 else 0
+                ik_right = smooth_right_rpm / MAX_RPM if MAX_RPM > 0 else 0
 
                 try:
                     measurements_left = left_motor.get_measurements()
@@ -154,8 +174,9 @@ class Couch:
                         self.speed_mode = "sport"
                     elif joystick.isPressed('T7') or joystick.isPressed('T8'):
                         self.speed_mode = "insane"
-                    left_motor.set_rpm(ik_left)
-                    right_motor.set_rpm(ik_right)
+                    # Use the slew-rate limited RPM values directly
+                    left_motor.set_rpm(smooth_left_rpm)
+                    right_motor.set_rpm(smooth_right_rpm)
 
                 if joystick.isPressed('TRIGGER'):
                     # TODO: Horn

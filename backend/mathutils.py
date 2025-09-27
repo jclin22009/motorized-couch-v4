@@ -1,5 +1,5 @@
 """Math utilities."""
-from typing import Tuple
+from typing import Tuple, Optional
 import time
 
 
@@ -220,6 +220,63 @@ class InputSmoother:
         self.last_output_rotation = smooth_rotation
         
         return smooth_speed, smooth_rotation
+
+
+class SlewRateLimiter:
+    """
+    Professional-grade slew rate limiter for smooth velocity ramping.
+    Used in FRC robotics and industrial control systems.
+    """
+    
+    def __init__(self, positive_rate_limit: float, negative_rate_limit: Optional[float] = None):
+        """
+        Args:
+            positive_rate_limit: Maximum positive change per second
+            negative_rate_limit: Maximum negative change per second (defaults to positive_rate_limit)
+        """
+        self.positive_rate_limit = positive_rate_limit
+        if negative_rate_limit is not None:
+            self.negative_rate_limit = negative_rate_limit
+        else:
+            self.negative_rate_limit = positive_rate_limit
+        self.prev_val = 0.0
+        self.prev_time = time.time()
+        
+    def calculate(self, input_val: float) -> float:
+        """
+        Apply slew rate limiting to the input.
+        
+        Args:
+            input_val: Input value to be rate limited
+            
+        Returns:
+            Rate-limited output value
+        """
+        current_time = time.time()
+        dt = current_time - self.prev_time
+        self.prev_time = current_time
+        
+        # Handle edge cases
+        if dt <= 0 or dt > 1.0:
+            dt = 0.02  # Default to 50Hz if timing is weird
+            
+        # Calculate the maximum change allowed
+        if input_val > self.prev_val:
+            max_change = self.positive_rate_limit * dt
+            output = min(input_val, self.prev_val + max_change)
+        elif input_val < self.prev_val:
+            max_change = self.negative_rate_limit * dt
+            output = max(input_val, self.prev_val - max_change)
+        else:
+            output = input_val
+            
+        self.prev_val = output
+        return output
+        
+    def reset(self, value: float = 0.0):
+        """Reset the limiter state"""
+        self.prev_val = value
+        self.prev_time = time.time()
 
 
 def deadzone_with_hysteresis(x: float, deadband: float, hysteresis: float = 0.02) -> float:

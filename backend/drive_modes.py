@@ -52,3 +52,43 @@ def arcade_drive_ik(speed: float, rotation: float, rotation_sensitivity: float =
 
 def get_speed_multiplier(speed_mode: SpeedMode) -> float:
     return SPEED_MODES_TO_MULTIPLIER[speed_mode]
+
+
+def enhanced_curvature_drive_ik(speed: float, rotation: float, quick_turn: bool = False) -> Tuple[float, float]:
+    """
+    Enhanced curvature drive with professional-grade control features.
+    Based on WPILib implementation used in competitive robotics.
+
+    Args:
+        speed: Forward/backward speed [-1.0..1.0]. Forward is positive.
+        rotation: Turn rate [-1.0..1.0]. Counterclockwise is positive.
+        quick_turn: If true, overrides speed-dependent turning for tight maneuvers.
+
+    Returns:
+        Wheel speeds [-1.0..1.0] (left, right).
+    """
+    speed, rotation = mathutils.scale_and_deadzone_inputs(speed, rotation, square_rotation=False)
+    
+    if quick_turn:
+        # Quick turn mode - for stationary or slow-speed tight turns
+        left_speed = rotation
+        right_speed = -rotation
+    else:
+        # Speed-dependent curvature turning (the key improvement!)
+        # At high speeds, turning becomes less aggressive automatically
+        angular_power = abs(speed) * rotation
+        
+        if speed > 0:
+            # Moving forward
+            left_speed = speed + angular_power
+            right_speed = speed - angular_power
+        elif speed < 0:
+            # Moving backward
+            left_speed = speed - angular_power
+            right_speed = speed + angular_power
+        else:
+            # Stationary - allow rotation in place
+            left_speed = rotation
+            right_speed = -rotation
+    
+    return mathutils.desaturate_wheel_speeds(left_speed, right_speed)
