@@ -35,7 +35,7 @@ class Couch:
         )
         
         # Rotation sensitivity - makes turning less aggressive than forward/backward
-        self.rotation_sensitivity = 0.2  # 80% less sensitive turning
+        self.rotation_sensitivity = 0.3  # 70% less sensitive turning
 
     def start(self):
         print("Starting couch")
