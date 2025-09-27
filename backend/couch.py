@@ -114,9 +114,19 @@ class Couch:
 
                 is_driving = True
 
-                print(joystick.isPressed("MODEA"), joystick.isPressed("MODEB"))
+                is_park = joystick.isPressed("MODEA")
+                is_neutral = joystick.isPressed("MODEB")
+                is_driving = not is_park and not is_neutral
 
-                if is_driving:
+                if is_park:
+                    self.speed_mode = "park"
+                    left_motor.set_rpm(0)
+                    right_motor.set_rpm(0)
+                elif is_neutral:
+                    self.speed_mode = "neutral"
+                    left_motor.set_current(0) 
+                    right_motor.set_current(0)
+                elif is_driving:
                     if joystick.isPressed('T1') or joystick.isPressed('T2'):
                         self.speed_mode = "chill"
                     elif joystick.isPressed('T3') or joystick.isPressed('T4'):
