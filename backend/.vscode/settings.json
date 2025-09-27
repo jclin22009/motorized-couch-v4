@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.autoImportCompletions": true,
+  "files.insertFinalNewline": true
+}

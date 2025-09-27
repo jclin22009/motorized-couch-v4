@@ -1,22 +1,20 @@
 import time
 import threading
-from typing import TYPE_CHECKING
 
 import Gamepad.Gamepad as Gamepad
 import Gamepad.Controllers as Controllers
 from detect_motor_controllers import get_motor_controllers
 
-from drive_modes import arcade_drive_ik, get_speed_multiplier
+from drive_modes import SpeedMode, arcade_drive_ik, get_speed_multiplier
 
-if TYPE_CHECKING:
-    from app import UIManager
+from screen_ui import ScreenUI, ScreenUIUpdate
 
 VERTICAL_JOYSTICK_AXIS = 1
 HORIZONTAL_JOYSTICK_AXIS = 0
 POLL_INTERVAL = 0.1
 
 class Couch:
-    def __init__(self, ui_manager: "UIManager"):
+    def __init__(self, ui_manager: "ScreenUI | None" = None):
         self.ui_manager = ui_manager
         self.speed = 0
         self.left_power = 0
@@ -25,7 +23,7 @@ class Couch:
         self.right_rpm = 0
         self.voltage = 0
         self.temperature = 0
-        self.couch_mode = 0 # 0 = park, 1 = neutral, 2 = chill, 3 = speed, 4 = ludicrous 
+        self.speed_mode: SpeedMode = "park"
 
     def start(self):
         print("Starting couch")
@@ -51,19 +49,15 @@ class Couch:
         stop_event = self.stop_event
         while not stop_event.is_set():
             battery_percentage = self.voltage # TODO: DO actual conversion
-            range_ = self.voltage # TODO: DO actual conversion
-            wattage = self.left_power + self.right_power # TODO: Is this correct?
-            gear = 0 # TODO: Get actual gear
+            wattage = self.left_power + self.right_power
             try:
-                self.ui_manager.send({
-                    "speed": self.speed,           # mph
-                    "battery": battery_percentage, # %
-                    "wattage": wattage,             # W
-                    "range": range_,          # mi
-                    "voltage": self.voltage,  # V
-                    "speedMode": self.couch_mode,        # index
-                    "gear": gear,             # index
-                })
+                if self.ui_manager:
+                    self.ui_manager.update(ScreenUIUpdate(
+                        speed_mph=self.speed,
+                        power_watts=wattage,
+                        battery_pct=battery_percentage,
+                        speed_mode=self.speed_mode,
+                    ))
             except Exception as e:
                 print(f"Error sending data to UI: {e}")
             time.sleep(0.2)
@@ -90,8 +84,8 @@ class Couch:
                 joystick_vertical = -joystick.axis('Y')
                 joystick_horizontal = joystick.axis('X')
                 ik_left, ik_right = arcade_drive_ik(joystick_vertical, joystick_horizontal)
-                ik_left *= get_speed_multiplier(self.couch_mode)
-                ik_right *= get_speed_multiplier(self.couch_mode)
+                ik_left *= get_speed_multiplier(self.speed_mode)
+                ik_right *= get_speed_multiplier(self.speed_mode)
 
                 try:
                     measurements_left = left_motor.get_measurements()
@@ -116,31 +110,25 @@ class Couch:
 
                 self.speed = (((self.left_rpm + self.right_rpm) / 2) / 15) * rpm_to_mph #Convert ERPM to RPM
 
-                if joystick.isPressed('T1'):
-                    self.couch_mode = 0
-                    left_motor.set_rpm(0)
-                    right_motor.set_rpm(0)
-                    print("Motors set to brake state (park)")
-                elif joystick.isPressed('T2'):
-                    self.couch_mode = 1
-                    left_motor.set_current(0) 
-                    right_motor.set_current(0)
-                    print("Motors set to loose state (neutral)")
-                elif joystick.isPressed('T3'):
-                    self.couch_mode = 2
-                    print("Motors set to brake state (chill)")
-                elif joystick.isPressed('T5'):
-                    self.couch_mode = 3
-                    print("Motors set to brake state (speed)")
-                elif joystick.isPressed('T7'):
-                    self.couch_mode = 4
-                    print("Motors set to brake state (ludicrous)")
+                # TODO: Figure out Drive Mode switch
+
+                is_driving = True
+
+                if is_driving:
+                    if joystick.isPressed('T1') or joystick.isPressed('T2'):
+                        self.speed_mode = "chill"
+                    elif joystick.isPressed('T3') or joystick.isPressed('T4'):
+                        self.speed_mode = "standard"
+                    elif joystick.isPressed('T5') or joystick.isPressed('T6'):
+                        self.speed_mode = "sport"
+                    elif joystick.isPressed('T7'):
+                        self.speed_mode = "insane"
 
                 if joystick.isPressed('TRIGGER'):
                     # TODO: Horn
                     pass
 
-                if self.couch_mode > 1:
+                if is_driving:
                     left_motor.set_rpm(ik_left)
                     right_motor.set_rpm(ik_right)
 

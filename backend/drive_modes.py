@@ -1,12 +1,17 @@
-from typing import Tuple
+from typing import Tuple, Literal, Dict, List
 import mathutils
 
-SPEED_MODES = {
-    0: 0,
-    1: 0.25,
-    2: 0.5,
-    3: 0.75,
-    4: 1
+SpeedMode = Literal["park", "neutral", "chill", "standard", "sport", "insane"]
+
+SPEED_MODES: List[SpeedMode] = ["park", "neutral", "chill", "standard", "sport", "insane"]
+
+SPEED_MODES_TO_MULTIPLIER: Dict[SpeedMode, float] = {
+    "park": 0,
+    "neutral": 0,
+    "chill": 0.25,
+    "standard": 0.5,
+    "sport": 0.75,
+    "insane": 1,
 }
 
 def curvture_drive_ik(speed: float, rotation: float) -> Tuple[float, float]:
@@ -41,5 +46,5 @@ def arcade_drive_ik(speed: float, rotation: float) -> Tuple[float, float]:
     return mathutils.desaturate_wheel_speeds(left_speed, right_speed)
 
 
-def get_speed_multiplier(speed_mode: int) -> float:
-    return SPEED_MODES[speed_mode]
+def get_speed_multiplier(speed_mode: SpeedMode) -> float:
+    return SPEED_MODES_TO_MULTIPLIER[speed_mode]
