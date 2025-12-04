@@ -164,6 +164,8 @@ class Couch:
                 time.sleep(POLL_INTERVAL)
 
         finally:
+            left_motor.set_current(0)
+            right_motor.set_current(0)
             del left_motor
             del right_motor
             joystick.disconnect()
